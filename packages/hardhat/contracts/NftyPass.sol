@@ -15,13 +15,13 @@ contract NftyPass is
 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
-    
+
     uint256 public constant MAX_TOKENS = 9000;
     uint256 public constant PRICE = 0.05 ether;
     string private _passBaseURI = "";
 
-    constructor(string memory baseURI) 
-    ERC721("NftyPass", "NFTY") 
+    constructor(string memory baseURI)
+    ERC721("NftyPass", "NFTY")
     {
         _passBaseURI = baseURI;
     }
@@ -32,7 +32,7 @@ contract NftyPass is
             "ETH amount is not sufficient"
         );
         require(totalSupply() < MAX_TOKENS, "Maximum amount has been reached!");
-        
+
         _safeMint(to, _tokenIdCounter.current());
         _tokenIdCounter.increment();
     }
@@ -64,8 +64,19 @@ contract NftyPass is
     function withdraw() external onlyOwner {
         uint256 balance = address(this).balance;
         (bool succeed, ) = msg.sender.call{value: balance}("");
-        
+
         require(succeed, "Failed to withdraw Ether");
+    }
+
+    function tokensOfOwner(address owner) external view returns(uint256[] memory) {
+        uint256 numOfPasses = balanceOf(owner);
+
+        uint256[] memory passes = new uint256[](numOfPasses);
+        for(uint256 i; i < numOfPasses; i++){
+            passes[i] = tokenOfOwnerByIndex(owner, i);
+        }
+
+        return passes;
     }
 
     function supportsInterface(bytes4 interfaceId)

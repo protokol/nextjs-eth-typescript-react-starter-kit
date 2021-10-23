@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { assert, expect } from "chai";
 import { Signer } from "ethers";
 import { ethers, web3 } from "hardhat";
 
@@ -133,6 +133,42 @@ describe("NftyPass", function () {
                 .tokenURI(0);
 
             expect(tokenURI).to.be.eq(`www.placeholder.com/${0}`);
+        });
+    });
+
+    describe("tokensOfOwner", function () {
+        it("Should Return Correct Token Ids", async function () {
+            const value = await nftyPassContract.PRICE();
+
+            await nftyPassContract.safeMint(
+                await accounts[0].getAddress(),
+                { value }
+            );
+
+            await nftyPassContract.safeMint(
+                await accounts[0].getAddress(),
+                { value }
+            );
+
+            await nftyPassContract.safeMint(
+                await accounts[1].getAddress(),
+                { value }
+            );
+
+            await nftyPassContract.safeMint(
+                await accounts[2].getAddress(),
+                { value }
+            );
+
+            const address1 = await nftyPassContract.tokensOfOwner(await accounts[0].getAddress());
+            assert.equal(address1[0].toNumber(), 0);
+            assert.equal(address1[1].toNumber(), 1);
+
+            const address2 = await nftyPassContract.tokensOfOwner(await accounts[1].getAddress());
+            assert.equal(address2[0].toNumber(), 2);
+
+            const address3 = await nftyPassContract.tokensOfOwner(await accounts[2].getAddress());
+            assert.equal(address3[0].toNumber(), 3);
         });
     });
 
