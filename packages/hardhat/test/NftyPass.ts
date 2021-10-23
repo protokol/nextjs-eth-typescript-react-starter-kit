@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { Signer } from "ethers";
 import { ethers, web3 } from "hardhat";
 
-import { NftyPass, NftyPass__factory } from "../typechain";
+import { NftyPass, NftyPass__factory } from "../../frontend/types/typechain";
 
 describe("NftyPass", function () {
     let accounts: Signer[];

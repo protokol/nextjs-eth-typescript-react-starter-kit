@@ -7,7 +7,7 @@ import {
     NftyHalloween__factory,
     NftyPass,
     NftyPass__factory,
-} from "../typechain";
+} from "../../frontend/types/typechain";
 
 describe("Nfty Halloween", function () {
     let accounts: Signer[];
@@ -28,7 +28,7 @@ describe("Nfty Halloween", function () {
         const halloweenFactory = (await ethers.getContractFactory(
             "NftyHalloween",
             accounts[0]
-        )) as NftyHalloween__factory;
+        )) as unknown as NftyHalloween__factory;
         halloweenContract = await halloweenFactory.deploy(
             uri,
             passContract.address
