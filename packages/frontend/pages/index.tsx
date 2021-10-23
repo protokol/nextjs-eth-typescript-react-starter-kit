@@ -1,0 +1,247 @@
+import { Box, Button, Divider, Heading, Text } from '@chakra-ui/react'
+import { Link } from "@chakra-ui/react"
+import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { ChainId, useEthers, useSendTransaction } from '@usedapp/core'
+import { ethers, providers, utils } from 'ethers'
+import React, { useReducer } from 'react'
+import { NftyPass as LOCAL_CONTRACT_ADDRESS } from '../artifacts/contracts/contractAddress'
+import NftyPassContract from '../artifacts/contracts/NftyPass.sol/NftyPass.json'
+import { Layout } from '../components/layout/Layout'
+import { NftyPass as NftyPassContractType } from '../types/typechain'
+
+/**
+ * Constants & Helpers
+ */
+
+const localProvider = new providers.StaticJsonRpcProvider(
+    'http://localhost:8545'
+)
+
+const RINKEBY_CONTRACT_ADDRESS = '0x8768877CEE737eafe3d1397ce2376f694D13642d'
+
+/**
+ * Prop Types
+ */
+type StateType = {
+    tokenPrice: string
+    tokenSupply: string
+    txHashValue: string
+    isLoading: boolean
+}
+
+type ActionType =
+    {
+        type: 'SET_TOKEN_PRICE'
+        tokenPrice: StateType['tokenPrice']
+    }
+    |
+    {
+        type: 'SET_TOKEN_SUPPLY'
+        tokenSupply: StateType['tokenSupply']
+    }
+    |
+    {
+        type: 'SET_TX_HASH_VALUE'
+        txHashValue: StateType['txHashValue']
+    }
+    |
+    {
+        type: 'SET_LOADING'
+        isLoading: StateType['isLoading']
+    }
+
+/**
+ * Component
+ */
+const initialState: StateType = {
+    tokenPrice: '',
+    tokenSupply: '',
+    txHashValue: '-',
+    isLoading: false,
+}
+
+function reducer(state: StateType, action: ActionType): StateType {
+    switch (action.type) {
+        // Track the greeting from the blockchain
+        case 'SET_TOKEN_PRICE':
+            return {
+                ...state,
+                tokenPrice: action.tokenPrice,
+            }
+        case 'SET_TOKEN_SUPPLY':
+            return {
+                ...state,
+                tokenSupply: action.tokenSupply,
+            }
+        case 'SET_TX_HASH_VALUE':
+            return {
+                ...state,
+                txHashValue: action.txHashValue,
+            }
+        case 'SET_LOADING':
+            return {
+                ...state,
+                isLoading: action.isLoading,
+            }
+        default:
+            throw new Error()
+    }
+}
+
+function HomeIndex(): JSX.Element {
+    const [state, dispatch] = useReducer(reducer, initialState)
+    const { account, chainId, library } = useEthers()
+
+    const isLocalChain =
+        chainId === ChainId.Localhost || chainId === ChainId.Hardhat
+
+    const CONTRACT_ADDRESS =
+        chainId === ChainId.Rinkeby
+            ? RINKEBY_CONTRACT_ADDRESS
+            : LOCAL_CONTRACT_ADDRESS
+
+    // Use the localProvider as the signer to send ETH to our wallet
+    const { sendTransaction } = useSendTransaction({
+        signer: localProvider.getSigner(),
+    })
+
+    // call the smart contract, read the current greeting value
+    async function fetchTokenPrice() {
+        if (library) {
+            const contract = new ethers.Contract(
+                CONTRACT_ADDRESS,
+                NftyPassContract.abi,
+                library
+            ) as NftyPassContractType
+            try {
+                const data = await contract.PRICE()
+                dispatch({ type: 'SET_TOKEN_PRICE', tokenPrice: data.toString() })
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.log('Error: ', err)
+            }
+        }
+    }
+
+    // call the smart contract, read the current greeting value
+    async function fetchTokenSupply() {
+        if (library) {
+            const contract = new ethers.Contract(
+                CONTRACT_ADDRESS,
+                NftyPassContract.abi,
+                library
+            ) as NftyPassContractType
+            try {
+                const data = await contract.MAX_TOKENS()
+                dispatch({ type: 'SET_TOKEN_SUPPLY', tokenSupply: data.toString() })
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.log('Error: ', err)
+            }
+        }
+    }
+
+
+    // call the smart contract, read the current greeting value
+    async function mintTokens() {
+        if (library) {
+            const contract = new ethers.Contract(
+                CONTRACT_ADDRESS,
+                NftyPassContract.abi,
+                library
+            ) as NftyPassContractType
+            try {
+
+                const value = await contract.PRICE();
+
+                const data = await contract
+                    .connect(library.getSigner())
+                    .safeMint(account, { value })
+
+
+                dispatch({ type: 'SET_TX_HASH_VALUE', txHashValue: data.hash })
+                await data.wait()
+
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.log('Error: ', err)
+                window.alert(err);
+            }
+        }
+    }
+
+    function sendFunds(): void {
+        sendTransaction({
+            to: account,
+            value: utils.parseEther('0.1'),
+        })
+    }
+
+    return (
+        <Layout>
+            <Heading as="h1" mb="8">
+                NftyVillage - Next.js Ethereum Starter
+            </Heading>
+            <Button
+                as="a"
+                size="lg"
+                colorScheme="teal"
+                variant="outline"
+                href="https://github.com/protokol/nextjs-eth-typescript-react-starter-kit"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Source code!
+            </Button>
+            <Text mt="8" fontSize="xl">
+                This page only works on the RINKEBY Testnet or on a Local Chain.
+            </Text>
+            <Box maxWidth="container.xm" p="8" mt="8" bg="gray.100">
+                <Link href="https://rinkeby.etherscan.io/address/0x8768877CEE737eafe3d1397ce2376f694D13642d" isExternal>
+                    Contract Address: <br />{CONTRACT_ADDRESS} <ExternalLinkIcon mx="2px" />
+                </Link>
+
+                <Divider my="8" borderColor="gray.400" />
+                <Box>
+                    <Text fontSize="lg">Token Price: {state.tokenPrice}</Text>
+                    <Button mt="2" colorScheme="teal" onClick={fetchTokenPrice}>
+                        Fetch Token Minting Price
+                    </Button>
+                </Box>
+                <Divider my="8" borderColor="gray.400" />
+                <Box>
+                    <Text fontSize="lg">Token Supply: {state.tokenSupply}</Text>
+                    <Button mt="2" colorScheme="teal" onClick={fetchTokenSupply}>
+                        Fetch TokenSupply
+                    </Button>
+                </Box>
+
+                <Divider my="8" borderColor="gray.400" />
+                <Box>
+                    <Button
+                        mt="2"
+                        colorScheme="teal"
+                        isLoading={state.isLoading}
+                        onClick={mintTokens}>
+                        Mint/Buy Tokens
+                    </Button>
+                    <Text fontSize="md">Transaction Hash: {state.txHashValue}</Text>
+
+                </Box>
+
+                <Divider my="8" borderColor="gray.400" />
+
+                <Text mb="4">This button only works on a Local Chain.</Text>
+                <Button
+                    colorScheme="teal"
+                    onClick={sendFunds}
+                    isDisabled={!isLocalChain}
+                >
+                    Send Funds From Local Hardhat Chain
+                </Button>
+            </Box>
+        </Layout >
+    )
+}
+
+export default HomeIndex
