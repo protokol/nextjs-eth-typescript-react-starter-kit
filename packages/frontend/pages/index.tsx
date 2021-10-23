@@ -25,6 +25,7 @@ const RINKEBY_CONTRACT_ADDRESS = '0x8768877CEE737eafe3d1397ce2376f694D13642d'
 type StateType = {
     tokenPrice: string
     tokenSupply: string
+    maxSupply: string
     txHashValue: string
     isLoading: boolean
 }
@@ -38,6 +39,11 @@ type ActionType =
     {
         type: 'SET_TOKEN_SUPPLY'
         tokenSupply: StateType['tokenSupply']
+    }
+    |
+    {
+        type: 'SET_MAX_SUPPLY'
+        maxSupply: StateType['maxSupply']
     }
     |
     {
@@ -56,6 +62,7 @@ type ActionType =
 const initialState: StateType = {
     tokenPrice: '',
     tokenSupply: '',
+    maxSupply: '',
     txHashValue: '-',
     isLoading: false,
 }
@@ -73,6 +80,12 @@ function reducer(state: StateType, action: ActionType): StateType {
                 ...state,
                 tokenSupply: action.tokenSupply,
             }
+        case 'SET_MAX_SUPPLY':
+            return {
+                ...state,
+                maxSupply: action.maxSupply,
+            }
+
         case 'SET_TX_HASH_VALUE':
             return {
                 ...state,
@@ -132,8 +145,12 @@ function HomeIndex(): JSX.Element {
                 library
             ) as NftyPassContractType
             try {
-                const data = await contract.MAX_TOKENS()
-                dispatch({ type: 'SET_TOKEN_SUPPLY', tokenSupply: data.toString() })
+                const data1 = await contract.totalSupply()
+                dispatch({ type: 'SET_TOKEN_SUPPLY', tokenSupply: data1.toString() })
+
+                const data2 = await contract.MAX_TOKENS()
+                dispatch({ type: 'SET_MAX_SUPPLY', maxSupply: data2.toString() })
+
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.log('Error: ', err)
@@ -161,6 +178,7 @@ function HomeIndex(): JSX.Element {
 
                 dispatch({ type: 'SET_TX_HASH_VALUE', txHashValue: data.hash })
                 await data.wait()
+                await fetchTokenSupply()
 
             } catch (err) {
                 // eslint-disable-next-line no-console
@@ -194,6 +212,7 @@ function HomeIndex(): JSX.Element {
                 Source code!
             </Button>
             <Text mt="8" fontSize="xl">
+                Connect your wallet first!
                 This page only works on the RINKEBY Testnet or on a Local Chain.
             </Text>
             <Box maxWidth="container.xm" p="8" mt="8" bg="gray.100">
@@ -210,22 +229,23 @@ function HomeIndex(): JSX.Element {
                 </Box>
                 <Divider my="8" borderColor="gray.400" />
                 <Box>
-                    <Text fontSize="lg">Token Supply: {state.tokenSupply}</Text>
+                    <Text fontSize="lg">Minted supply: {state.tokenSupply}  |  Available Tokens: {state.maxSupply - state.tokenSupply} | Maximum Supply: {state.maxSupply} </Text>
                     <Button mt="2" colorScheme="teal" onClick={fetchTokenSupply}>
-                        Fetch TokenSupply
+                        Fetch Data
                     </Button>
                 </Box>
 
                 <Divider my="8" borderColor="gray.400" />
                 <Box>
                     <Button
-                        mt="2"
+                        as="a"
+                        size="lg"
                         colorScheme="teal"
                         isLoading={state.isLoading}
                         onClick={mintTokens}>
                         Mint/Buy Tokens
                     </Button>
-                    <Text fontSize="md">Transaction Hash: {state.txHashValue}</Text>
+                    <Text fontSize="md" mt="2">Transaction Hash: {state.txHashValue}</Text>
 
                 </Box>
 
