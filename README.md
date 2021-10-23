@@ -1,6 +1,9 @@
-# 🏗 Scaffold-ETH
+# 🏗 NFTY-VILLAGE Scaffold-ETH
 
 > everything you need to build on Ethereum! 🚀
+
+
+DEMO LINK: https://nextjs-eth-typescript-react-starter-kit.vercel.app/
 
 
 - [Next.js](https://nextjs.org)
