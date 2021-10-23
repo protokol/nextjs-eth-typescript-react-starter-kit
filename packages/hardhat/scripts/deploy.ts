@@ -3,9 +3,9 @@
 //
 // When running the script with `hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import { Contract } from 'ethers';
-import { config, ethers } from 'hardhat';
-import fs from 'fs';
+import { Contract } from "ethers";
+import { config, ethers } from "hardhat";
+import fs from "fs";
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -15,7 +15,7 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  fs.unlinkSync("../../frontend/lib/contractAddress.ts");
+  fs.unlinkSync(`${config.paths.root}/scripts/contractAddress.ts`);
 
   // We get the contract to deploy
   const NftyPassContract = await ethers.getContractFactory("NftyPass");
@@ -39,12 +39,18 @@ async function main() {
     "NftyHalloweenContract deployed to:",
     nftyHalloweenContract.address
   );
+
+  const MulticallContract = await ethers.getContractFactory("Multicall");
+  const multicallContract = await MulticallContract.deploy();
+  await multicallContract.deployed();
+  saveFrontendFiles(multicallContract, "MulticallContract");
+  console.log("Multicall deployed to:", multicallContract.address);
 }
 
 // https://github.com/nomiclabs/hardhat-hackathon-boilerplate/blob/master/scripts/deploy.js
 function saveFrontendFiles(contract: Contract, contractName: string) {
   fs.appendFileSync(
-    `${config.paths.artifacts}/contracts/contractAddress.ts`,
+    `${config.paths.root}/scripts/contractAddress.ts`,
     `export const ${contractName} = '${contract.address}'\n`
   );
 }
