@@ -229,7 +229,7 @@ function HomeIndex(): JSX.Element {
                 </Box>
                 <Divider my="8" borderColor="gray.400" />
                 <Box>
-                    <Text fontSize="lg">Minted supply: {state.tokenSupply}  |  Available Tokens: {state.maxSupply - state.tokenSupply} | Maximum Supply: {state.maxSupply} </Text>
+                    <Text fontSize="lg">Minted supply: {state.tokenSupply}  |  Maximum Supply: {state.maxSupply} </Text>
                     <Button mt="2" colorScheme="teal" onClick={fetchTokenSupply}>
                         Fetch Data
                     </Button>
