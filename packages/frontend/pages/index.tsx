@@ -124,7 +124,7 @@ function HomeIndex(): JSX.Element {
             const contract = new ethers.Contract(
                 CONTRACT_ADDRESS,
                 NftyPassContract.abi,
-                library
+                library as any
             ) as NftyPassContractType
             try {
                 const data = await contract.PRICE()
@@ -142,7 +142,7 @@ function HomeIndex(): JSX.Element {
             const contract = new ethers.Contract(
                 CONTRACT_ADDRESS,
                 NftyPassContract.abi,
-                library
+                library as any
             ) as NftyPassContractType
             try {
                 const data1 = await contract.totalSupply()
@@ -165,14 +165,14 @@ function HomeIndex(): JSX.Element {
             const contract = new ethers.Contract(
                 CONTRACT_ADDRESS,
                 NftyPassContract.abi,
-                library
+                library as any
             ) as NftyPassContractType
             try {
 
                 const value = await contract.PRICE();
 
                 const data = await contract
-                    .connect(library.getSigner())
+                    .connect(library.getSigner() as any)
                     .safeMint(account, { value })
 
 
