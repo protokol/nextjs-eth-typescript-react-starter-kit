@@ -15,7 +15,7 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  fs.unlinkSync(`${config.paths.artifacts}/contracts/contractAddress.ts`);
+  fs.unlinkSync("../../frontend/lib/contractAddress.ts");
 
   // We get the contract to deploy
   const NftyPassContract = await ethers.getContractFactory("NftyPass");
