@@ -1,19 +1,22 @@
 import { ethers } from "hardhat";
+import { Signer } from "ethers";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { chaiEthers } from "chai-ethers";
 
 import {
   NftyHalloween,
   NftyHalloween__factory,
   NftyPass,
   NftyPass__factory,
-} from "../../frontend/types/typechain";
+} from "frontend/types/typechain";
 
+chai.use(chaiEthers);
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
 describe("Nfty Halloween", function () {
-  let accounts: any[];
+  let accounts: Signer[];
   const uri = "www.placeholder.com/";
 
   let passContract: NftyPass;
@@ -22,16 +25,16 @@ describe("Nfty Halloween", function () {
   beforeEach(async function () {
     accounts = await ethers.getSigners();
 
-    const passFactory = await ethers.getContractFactory(
+    const passFactory = (await ethers.getContractFactory(
       "NftyPass",
       accounts[0]
-    );
+    )) as NftyPass__factory;
     passContract = await passFactory.deploy("some-uri");
 
-    const halloweenFactory = await ethers.getContractFactory(
+    const halloweenFactory = (await ethers.getContractFactory(
       "NftyHalloween",
       accounts[0]
-    );
+    )) as NftyHalloween__factory;
     halloweenContract = await halloweenFactory.deploy(
       uri,
       passContract.address
