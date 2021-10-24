@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "yarn workspace nextjs-ethereum-starter-frontend dev",
-    "build": "yarn workspace nextjs-ethereum-starter-frontend build",
-    "start": "yarn workspace nextjs-ethereum-starter-frontend start",
-    "chain": "yarn workspace nextjs-ethereum-starter-hardhat chain",
-    "deploy": "yarn workspace nextjs-ethereum-starter-hardhat deploy",
-    "deploy:rinkeby": "yarn workspace nextjs-ethereum-starter-hardhat deploy:rinkeby",
-    "compile": "yarn workspace nextjs-ethereum-starter-hardhat compile"
+    "dev": "yarn workspace frontend dev",
+    "build": "yarn workspace frontend build",
+    "start": "yarn workspace frontend start",
+    "chain": "yarn workspace hardhat chain",
+    "deploy": "yarn workspace hardhat deploy",
+    "deploy:rinkeby": "yarn workspace hardhat deploy:rinkeby",
+    "compile": "yarn workspace hardhat compile"
   },
   "workspaces": {
     "packages": [

@@ -2,13 +2,15 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 
+
+import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-solhint";
-import "@typechain/hardhat";
+
 import { HardhatUserConfig } from "hardhat/types";
 import "dotenv/config";
-import "hardhat-abi-exporter";
 
 import "./tasks/accounts";
 import "./tasks/balance";
@@ -94,12 +96,6 @@ const config: HardhatUserConfig = {
   },
   mocha: {
     timeout: 100000,
-  },
-  abiExporter: {
-    path: "./abi",
-    clear: true,
-    flat: false,
-    spacing: 2,
   },
 };
 
