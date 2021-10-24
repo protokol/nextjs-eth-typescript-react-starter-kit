@@ -1,24 +1,27 @@
-import { ethers } from "hardhat";
+import { ethers, web3 } from "hardhat";
+import { Signer } from "ethers";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { chaiEthers } from "chai-ethers";
 
-import { NftyPass } from "../../frontend/types/typechain";
+import { NftyPass, NftyPass__factory } from "frontend/types/typechain";
 
+chai.use(chaiEthers);
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
 describe("NftyPass", function () {
-  let accounts: any[];
+  let accounts: Signer[];
   let nftyPassContract: NftyPass;
   const uri = "www.placeholder.com/";
 
   beforeEach(async function () {
     accounts = await ethers.getSigners();
 
-    const nftTokenFactory = await ethers.getContractFactory(
+    const nftTokenFactory = (await ethers.getContractFactory(
       "NftyPass",
       accounts[0]
-    );
+    )) as NftyPass__factory;
 
     nftyPassContract = await nftTokenFactory.deploy(uri);
   });
