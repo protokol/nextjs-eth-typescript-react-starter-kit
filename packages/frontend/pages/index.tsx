@@ -216,7 +216,7 @@ function HomeIndex(): JSX.Element {
                 This page only works on the RINKEBY Testnet or on a Local Chain.
             </Text>
             <Box maxWidth="container.xm" p="8" mt="8" bg="gray.100">
-                <Link href="https://rinkeby.etherscan.io/address/0x8768877CEE737eafe3d1397ce2376f694D13642d" isExternal>
+                <Link href={`https://rinkeby.etherscan.io/address/${CONTRACT_ADDRESS}`} isExternal>
                     Contract Address: <br />{CONTRACT_ADDRESS} <ExternalLinkIcon mx="2px" />
                 </Link>
 
@@ -238,6 +238,8 @@ function HomeIndex(): JSX.Element {
                 <Divider my="8" borderColor="gray.400" />
                 <Box>
                     <Button
+                        mt="2"
+                        mb="3"
                         as="a"
                         size="lg"
                         colorScheme="teal"
@@ -245,7 +247,11 @@ function HomeIndex(): JSX.Element {
                         onClick={mintTokens}>
                         Mint/Buy Tokens
                     </Button>
-                    <Text fontSize="md" mt="2">Transaction Hash: {state.txHashValue}</Text>
+                </Box>
+                <Box>
+                    <Link mt="2" href={`https://rinkeby.etherscan.io/tx/${state.txHashValue}`} isExternal>
+                        Transaction: {state.txHashValue} <ExternalLinkIcon mx="4px" />
+                    </Link>
 
                 </Box>
 
