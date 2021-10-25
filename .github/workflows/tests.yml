@@ -28,6 +28,9 @@ jobs:
       - name: Install
         run: yarn install
 
+      - name: Compile
+        run: yarn compile
+
       - name: Test
         run: cd packages/frontend && yarn test
 
@@ -49,6 +52,9 @@ jobs:
 
       - name: Install
         run: yarn install
+
+      - name: Compile
+        run: yarn compile
 
       - name: Test
         run: cd packages/hardhat && yarn test

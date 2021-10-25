@@ -28,6 +28,9 @@ jobs:
       - name: Install
         run: yarn install
 
+      - name: Compile
+        run: yarn compile
+
       - name: Lint && Type Check && Format
         run: cd packages/frontend && yarn lint && yarn type-check && yarn format
 
@@ -49,6 +52,9 @@ jobs:
 
       - name: Install
         run: yarn install
+
+      - name: Compile
+        run: yarn compile
 
       - name: Lint && Format
         run: cd packages/hardhat && yarn lint && yarn format
