@@ -342,7 +342,7 @@ function HomeIndex(): JSX.Element {
                     <Text mt="6" mb="2">NftyPasses: </Text>
                     {
                         state.allPasses.map(pass =>
-                            <Link key={pass.toString()} mr="2" href={`https://rinkeby.etherscan.io/token/${CONTRACT_ADDRESS}a?=${pass}`} isExternal>
+                            <Link key={pass.toString()} mr="2" href={`https://rinkeby.etherscan.io/token/${CONTRACT_ADDRESS}?a=${pass}`} isExternal>
                                 {pass}
                             </Link>
                         )
