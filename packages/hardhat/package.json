@@ -17,8 +17,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn full-check",
-      "pre-push": "yarn full-check"
+      "pre-commit": "yarn full-check"
     }
   },
   "postinstall": "compile",
