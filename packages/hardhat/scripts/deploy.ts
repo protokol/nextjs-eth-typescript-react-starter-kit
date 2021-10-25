@@ -4,8 +4,8 @@
 // When running the script with `hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { Contract } from "ethers";
-import { config, ethers } from "hardhat";
 import fs from "fs";
+import { config, ethers } from "hardhat";
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -51,7 +51,7 @@ async function main() {
 function saveFrontendFiles(contract: Contract, contractName: string) {
   fs.appendFileSync(
     `${config.paths.root}/scripts/contractAddress.ts`,
-    `export const ${contractName} = '${contract.address}'\n`
+    `export const ${contractName} = \"${contract.address}\"\n`
   );
 }
 

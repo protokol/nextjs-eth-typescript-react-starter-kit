@@ -1,15 +1,14 @@
-import { ethers } from "hardhat";
-import { Signer } from "ethers";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { chaiEthers } from "chai-ethers";
-
+import { Signer } from "ethers";
 import {
   NftyHalloween,
   NftyHalloween__factory,
   NftyPass,
   NftyPass__factory,
 } from "frontend/types/typechain";
+import { ethers } from "hardhat";
 
 chai.use(chaiEthers);
 chai.use(chaiAsPromised);
@@ -169,13 +168,40 @@ describe("Nfty Halloween", function () {
       await halloweenContract.connect(accounts[1]).mint(1);
       await halloweenContract.connect(accounts[1]).mint(2);
 
+      const address1 = await halloweenContract.tokensOfOwner(
+        await accounts[0].getAddress()
+      );
+      assert.equal(
+        address1[0].toNumber(),
+        (
+          await halloweenContract.tokenOfOwnerByIndex(
+            await accounts[0].getAddress(),
+            0
+          )
+        ).toNumber()
+      );
 
-      const address1 = await halloweenContract.tokensOfOwner(await accounts[0].getAddress());
-      assert.equal(address1[0].toNumber(), (await halloweenContract.tokenOfOwnerByIndex(await accounts[0].getAddress(), 0)).toNumber());
-
-      const address2 = await halloweenContract.tokensOfOwner(await accounts[1].getAddress());
-      assert.equal(address2[0].toNumber(), (await halloweenContract.tokenOfOwnerByIndex(await accounts[1].getAddress(), 0)).toNumber());
-      assert.equal(address2[1].toNumber(), (await halloweenContract.tokenOfOwnerByIndex(await accounts[1].getAddress(), 1)).toNumber());
+      const address2 = await halloweenContract.tokensOfOwner(
+        await accounts[1].getAddress()
+      );
+      assert.equal(
+        address2[0].toNumber(),
+        (
+          await halloweenContract.tokenOfOwnerByIndex(
+            await accounts[1].getAddress(),
+            0
+          )
+        ).toNumber()
+      );
+      assert.equal(
+        address2[1].toNumber(),
+        (
+          await halloweenContract.tokenOfOwnerByIndex(
+            await accounts[1].getAddress(),
+            1
+          )
+        ).toNumber()
+      );
     });
   });
 });

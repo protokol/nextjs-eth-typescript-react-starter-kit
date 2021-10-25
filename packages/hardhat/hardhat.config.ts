@@ -2,15 +2,13 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 
-
-import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-solhint";
-
-import { HardhatUserConfig } from "hardhat/types";
+import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
 import "dotenv/config";
+import { HardhatUserConfig } from "hardhat/types";
 
 import "./tasks/accounts";
 import "./tasks/balance";
@@ -71,9 +69,9 @@ const config: HardhatUserConfig = {
     rinkeby: {
       url: RINKEBY_RPC_URL,
       accounts: [PRIVATE_KEY],
-      //accounts: {
+      // accounts: {
       //  mnemonic: MNEMONIC,
-      //},
+      // },
     },
     ganache: {
       url: "http://localhost:8545",

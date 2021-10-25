@@ -21,18 +21,19 @@ contract NftyHalloween is
 
     mapping(uint256 => address) private claimed;
 
-    constructor(
-        string memory _nftyBaseURI,
-        address _nftyPass
-    ) ERC721("NftyHalloween", "NFTYH")
-    RandomlyAssigned(MAX_TOKENS, 0)
+    constructor(string memory _nftyBaseURI, address _nftyPass)
+        ERC721("NftyHalloween", "NFTYH")
+        RandomlyAssigned(MAX_TOKENS, 0)
     {
         nftyBaseURI = _nftyBaseURI;
         nftyPass = IERC721(_nftyPass);
     }
 
     function mint(uint256 pass) external whenNotPaused {
-        require(nftyPass.ownerOf(pass) == msg.sender, "Pass not owned by sender");
+        require(
+            nftyPass.ownerOf(pass) == msg.sender,
+            "Pass not owned by sender"
+        );
         require(claimed[pass] == address(0), "Pass already used");
 
         claimed[pass] = msg.sender;
@@ -71,11 +72,15 @@ contract NftyHalloween is
         return claimedAddress;
     }
 
-    function tokensOfOwner(address owner) external view returns(uint256[] memory) {
+    function tokensOfOwner(address owner)
+        external
+        view
+        returns (uint256[] memory)
+    {
         uint256 numOfTokens = balanceOf(owner);
 
         uint256[] memory tokens = new uint256[](numOfTokens);
-        for(uint256 i; i < numOfTokens; i++){
+        for (uint256 i; i < numOfTokens; i++) {
             tokens[i] = tokenOfOwnerByIndex(owner, i);
         }
 
