@@ -30,9 +30,9 @@ const config: Config = {
     ChainId.Hardhat,
   ],
   multicallAddresses: {
-      ...MULTICALL_ADDRESSES,
-      31337: MulticallContract,
-      1337: MulticallContract
+    ...MULTICALL_ADDRESSES,
+    31337: MulticallContract,
+    1337: MulticallContract,
   },
 }
 
