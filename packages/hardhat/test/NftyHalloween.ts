@@ -13,7 +13,7 @@ import {
 
 chai.use(chaiEthers);
 chai.use(chaiAsPromised);
-const { expect } = chai;
+const { expect, assert } = chai;
 
 describe("Nfty Halloween", function () {
   let accounts: Signer[];
@@ -148,6 +148,34 @@ describe("Nfty Halloween", function () {
       expect(
         halloweenContract.connect(accounts[1]).mint(0)
       ).eventually.to.be.rejectedWith("Pass not owned by sender");
+    });
+  });
+
+  describe("tokensOfOwner", function () {
+    it("Should Return Correct Token Ids", async function () {
+      const value = await passContract.PRICE();
+
+      await passContract.safeMint(await accounts[0].getAddress(), {
+        value,
+      });
+      await passContract.safeMint(await accounts[1].getAddress(), {
+        value,
+      });
+      await passContract.safeMint(await accounts[1].getAddress(), {
+        value,
+      });
+
+      await halloweenContract.connect(accounts[0]).mint(0);
+      await halloweenContract.connect(accounts[1]).mint(1);
+      await halloweenContract.connect(accounts[1]).mint(2);
+
+
+      const address1 = await halloweenContract.tokensOfOwner(await accounts[0].getAddress());
+      assert.equal(address1[0].toNumber(), (await halloweenContract.tokenOfOwnerByIndex(await accounts[0].getAddress(), 0)).toNumber());
+
+      const address2 = await halloweenContract.tokensOfOwner(await accounts[1].getAddress());
+      assert.equal(address2[0].toNumber(), (await halloweenContract.tokenOfOwnerByIndex(await accounts[1].getAddress(), 0)).toNumber());
+      assert.equal(address2[1].toNumber(), (await halloweenContract.tokenOfOwnerByIndex(await accounts[1].getAddress(), 1)).toNumber());
     });
   });
 });

@@ -28,7 +28,7 @@ const localProvider = new providers.StaticJsonRpcProvider(
     'http://localhost:8545'
 )
 
-const RINKEBY_CONTRACT_ADDRESS = '0x1e8B8088d212e086d792bb9de5dB5615B2A5C84D'
+const RINKEBY_CONTRACT_ADDRESS = '0x8Ba5cE975a075Be7c170F6BA3f937Ed6E1dA0Ed2'
 
 /**
  * Prop Types
@@ -40,6 +40,7 @@ type StateType = {
     txHashValue: string
     isLoading: boolean
     numOfPasses: number
+    allPasses: number[]
 }
 
 type ActionType =
@@ -72,6 +73,11 @@ type ActionType =
         type: 'SET_PASSES'
         numOfPasses: StateType['numOfPasses']
     }
+    |
+    {
+        type: 'SET_ALL_PASSES'
+        allPasses: StateType['allPasses']
+    }
 
 /**
  * Component
@@ -83,6 +89,7 @@ const initialState: StateType = {
     txHashValue: '-',
     isLoading: false,
     numOfPasses: 1,
+    allPasses: []
 }
 
 function reducer(state: StateType, action: ActionType): StateType {
@@ -118,6 +125,11 @@ function reducer(state: StateType, action: ActionType): StateType {
             return {
                 ...state,
                 numOfPasses: action.numOfPasses,
+            }
+        case 'SET_ALL_PASSES':
+            return {
+                ...state,
+                allPasses: action.allPasses,
             }
         default:
             throw new Error()
@@ -217,6 +229,25 @@ function HomeIndex(): JSX.Element {
         }
     }
 
+    async function listAllTokens() {
+        if (library) {
+            const contract = new ethers.Contract(
+                CONTRACT_ADDRESS,
+                NftyPassContract.abi,
+                library
+            ) as NftyPassContractType
+            try {
+                const data = await contract.tokensOfOwner(account)
+                const allPasses = data.map(pass => pass.toNumber())
+
+                dispatch({type: 'SET_ALL_PASSES', allPasses })
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.log('Error: ', err)
+            }
+        }
+    }
+
     function sendFunds(): void {
         sendTransaction({
             to: account,
@@ -296,6 +327,26 @@ function HomeIndex(): JSX.Element {
                         Transaction: {state.txHashValue} <ExternalLinkIcon mx="4px"/>
                     </Link>
 
+                </Box>
+
+                <Divider my="8" borderColor="gray.400"/>
+
+                <Button
+                    colorScheme="teal"
+                    onClick={listAllTokens}
+                >
+                    List my passes
+                </Button>
+
+                <Box>
+                    <Text mt="6" mb="2">Passes: </Text>
+                    {
+                        state.allPasses.map(pass =>
+                            <Link key={pass.toString()} mr="2" href={`https://rinkeby.etherscan.io/token/${CONTRACT_ADDRESS}?=${pass}`} isExternal>
+                                {pass}
+                            </Link>
+                        )
+                    }
                 </Box>
 
                 <Divider my="8" borderColor="gray.400"/>

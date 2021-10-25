@@ -20,9 +20,9 @@ contract NftyHalloween is
     IERC721 public nftyPass;
 
     mapping(uint256 => address) private claimed;
-    
+
     constructor(
-        string memory _nftyBaseURI,  
+        string memory _nftyBaseURI,
         address _nftyPass
     ) ERC721("NftyHalloween", "NFTYH")
     RandomlyAssigned(MAX_TOKENS, 0)
@@ -60,15 +60,26 @@ contract NftyHalloween is
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
+    function _baseURI() internal view virtual override returns (string memory) {
+        return nftyBaseURI;
+    }
+
     function claimedPass(uint256 pass) public view returns (address) {
         address claimedAddress = claimed[pass];
         require(claimedAddress != address(0), "Pass not claimed");
-        
+
         return claimedAddress;
     }
 
-    function _baseURI() internal view virtual override returns (string memory) {
-        return nftyBaseURI;
+    function tokensOfOwner(address owner) external view returns(uint256[] memory) {
+        uint256 numOfTokens = balanceOf(owner);
+
+        uint256[] memory tokens = new uint256[](numOfTokens);
+        for(uint256 i; i < numOfTokens; i++){
+            tokens[i] = tokenOfOwnerByIndex(owner, i);
+        }
+
+        return tokens;
     }
 
     function supportsInterface(bytes4 interfaceId)
