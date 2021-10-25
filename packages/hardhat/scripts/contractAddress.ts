@@ -1,3 +1,3 @@
-export const NftyPass = '0x512F47E988abfF6AAA49901cE5e5815AC7d2ab1f'
-export const NftyHalloweenContract = '0x31a9a05E8A016807d4B779716EC7aF35B36094a7'
-export const MulticallContract = '0x80F5F40298D6bA6B95f896dDe1F3978B13d9cffD'
+export const NftyPass = '0x1e8B8088d212e086d792bb9de5dB5615B2A5C84D'
+export const NftyHalloweenContract = '0x560C72238d8980776B7E8fB42C2195664Fe7bFAe'
+export const MulticallContract = '0x9e0Cf20A295f6Dd00ddFB52463c4e0FB7B53CB8a'

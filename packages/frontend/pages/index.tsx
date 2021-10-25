@@ -28,7 +28,7 @@ const localProvider = new providers.StaticJsonRpcProvider(
     'http://localhost:8545'
 )
 
-const RINKEBY_CONTRACT_ADDRESS = '0x512F47E988abfF6AAA49901cE5e5815AC7d2ab1f'
+const RINKEBY_CONTRACT_ADDRESS = '0x1e8B8088d212e086d792bb9de5dB5615B2A5C84D'
 
 /**
  * Prop Types
@@ -267,7 +267,7 @@ function HomeIndex(): JSX.Element {
                 <Divider my="8" borderColor="gray.400"/>
                 <Box>
                     <Text mt="6">Number of NftyPasses:</Text>
-                    <NumberInput size="lg" maxW={32} background={"white"} max={20} min={1} value={state.numOfPasses}
+                    <NumberInput size="lg" maxW={32} background={"white"} max={5} min={1} value={state.numOfPasses}
                     onChange={(e) => {
                         dispatch({
                             type: 'SET_PASSES',

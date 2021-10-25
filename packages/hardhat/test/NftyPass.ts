@@ -104,32 +104,32 @@ describe("NftyPass", function () {
       expect(await nftyPassContract.totalSupply()).to.equal(0);
 
       await nftyPassContract.batchSafeMint(
-          20,
+          5,
           await accounts[0].getAddress(),
           { value: value.mul(20) }
       );
 
-      expect(await nftyPassContract.totalSupply()).to.equal(20);
+      expect(await nftyPassContract.totalSupply()).to.equal(5);
     });
 
     it("Should throw ETH amount is not sufficient", async function () {
       const value = await nftyPassContract.PRICE();
 
       expect(nftyPassContract.batchSafeMint(
-          20,
+          5,
           await accounts[0].getAddress(),
-          { value: value.mul(20).sub(1) }
+          { value: value.mul(5).sub(1) }
       )).eventually.to.be.rejectedWith("ETH amount is not sufficient");
     });
 
-    it("Should throw Can only mint up to 20 tokens", async function () {
+    it("Should throw Can only mint up to 5 tokens", async function () {
       const value = await nftyPassContract.PRICE();
 
       expect(nftyPassContract.batchSafeMint(
-          21,
+          6,
           await accounts[0].getAddress(),
-          { value: value.mul(21) }
-      )).eventually.to.be.rejectedWith("Can only mint up to 20 tokens");
+          { value: value.mul(6) }
+      )).eventually.to.be.rejectedWith("Can only mint up to 5 tokens");
     });
   });
 
