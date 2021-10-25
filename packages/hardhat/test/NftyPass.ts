@@ -8,7 +8,7 @@ import { NftyPass, NftyPass__factory } from "frontend/types/typechain";
 
 chai.use(chaiEthers);
 chai.use(chaiAsPromised);
-const { expect } = chai;
+const { expect, assert } = chai;
 
 describe("NftyPass", function () {
   let accounts: Signer[];
@@ -212,6 +212,42 @@ describe("NftyPass", function () {
       expect(
         nftyPassContract.connect(accounts[1]).withdraw()
       ).eventually.to.be.rejectedWith();
+    });
+  });
+
+  describe("tokensOfOwner", function () {
+    it("Should Return Correct Token Ids", async function () {
+      const value = await nftyPassContract.PRICE();
+
+      await nftyPassContract.safeMint(
+          await accounts[0].getAddress(),
+          { value }
+      );
+
+      await nftyPassContract.safeMint(
+          await accounts[0].getAddress(),
+          { value }
+      );
+
+      await nftyPassContract.safeMint(
+          await accounts[1].getAddress(),
+          { value }
+      );
+
+      await nftyPassContract.safeMint(
+          await accounts[2].getAddress(),
+          { value }
+      );
+
+      const address1 = await nftyPassContract.tokensOfOwner(await accounts[0].getAddress());
+      assert.equal(address1[0].toNumber(), 0);
+      assert.equal(address1[1].toNumber(), 1);
+
+      const address2 = await nftyPassContract.tokensOfOwner(await accounts[1].getAddress());
+      assert.equal(address2[0].toNumber(), 2);
+
+      const address3 = await nftyPassContract.tokensOfOwner(await accounts[2].getAddress());
+      assert.equal(address3[0].toNumber(), 3);
     });
   });
 });

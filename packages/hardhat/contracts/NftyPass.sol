@@ -75,15 +75,26 @@ contract NftyPass is
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
-    function _baseURI() internal view virtual override returns (string memory) {
-        return _passBaseURI;
-    }
-
     function withdraw() external onlyOwner {
         uint256 balance = address(this).balance;
         (bool succeed, ) = msg.sender.call{value: balance}("");
 
         require(succeed, "Failed to withdraw Ether");
+    }
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return _passBaseURI;
+    }
+
+    function tokensOfOwner(address owner) external view returns(uint256[] memory) {
+        uint256 numOfPasses = balanceOf(owner);
+
+        uint256[] memory passes = new uint256[](numOfPasses);
+        for(uint256 i; i < numOfPasses; i++){
+            passes[i] = tokenOfOwnerByIndex(owner, i);
+        }
+
+        return passes;
     }
 
     function supportsInterface(bytes4 interfaceId)
