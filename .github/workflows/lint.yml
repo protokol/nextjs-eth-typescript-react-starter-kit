@@ -3,7 +3,7 @@ name: LINT
 on:
   push:
     branches:
-      - "main"
+      - "master"
       - "develop"
   pull_request:
     types: [ready_for_review, synchronize, opened]
