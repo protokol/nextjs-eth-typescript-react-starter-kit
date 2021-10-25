@@ -6,7 +6,7 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': 'babel-jest',
   },
-  testEnvironment: "jsdom",
+  testEnvironment: 'jsdom',
   watchPlugins: [
     'jest-watch-typeahead/filename',
     'jest-watch-typeahead/testname',
