@@ -335,11 +335,11 @@ function HomeIndex(): JSX.Element {
                     colorScheme="teal"
                     onClick={listAllTokens}
                 >
-                    List my passes
+                    List my NftyPasses
                 </Button>
 
                 <Box>
-                    <Text mt="6" mb="2">Passes: </Text>
+                    <Text mt="6" mb="2">NftyPasses: </Text>
                     {
                         state.allPasses.map(pass =>
                             <Link key={pass.toString()} mr="2" href={`https://rinkeby.etherscan.io/token/${CONTRACT_ADDRESS}?=${pass}`} isExternal>
