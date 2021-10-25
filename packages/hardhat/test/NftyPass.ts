@@ -97,6 +97,42 @@ describe("NftyPass", function () {
     });
   });
 
+  describe("batchSafeMint", function () {
+    it("Should Successfully batchSafeMint", async function () {
+      const value = await nftyPassContract.PRICE();
+
+      expect(await nftyPassContract.totalSupply()).to.equal(0);
+
+      await nftyPassContract.batchSafeMint(
+          20,
+          await accounts[0].getAddress(),
+          { value: value.mul(20) }
+      );
+
+      expect(await nftyPassContract.totalSupply()).to.equal(20);
+    });
+
+    it("Should throw ETH amount is not sufficient", async function () {
+      const value = await nftyPassContract.PRICE();
+
+      expect(nftyPassContract.batchSafeMint(
+          20,
+          await accounts[0].getAddress(),
+          { value: value.mul(20).sub(1) }
+      )).eventually.to.be.rejectedWith("ETH amount is not sufficient");
+    });
+
+    it("Should throw Can only mint up to 20 tokens", async function () {
+      const value = await nftyPassContract.PRICE();
+
+      expect(nftyPassContract.batchSafeMint(
+          21,
+          await accounts[0].getAddress(),
+          { value: value.mul(21) }
+      )).eventually.to.be.rejectedWith("Can only mint up to 20 tokens");
+    });
+  });
+
   describe("Base URI", function () {
     it("Should update base uri", async function () {
       const updatedBaseURI = "www.placeholder2.com/";
