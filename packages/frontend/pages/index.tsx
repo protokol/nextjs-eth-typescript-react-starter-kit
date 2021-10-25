@@ -1,4 +1,15 @@
-import { Box, Button, Divider, Heading, Text } from '@chakra-ui/react'
+import {
+    Box,
+    Button,
+    Divider,
+    Heading,
+    NumberDecrementStepper,
+    NumberIncrementStepper,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    Text
+} from '@chakra-ui/react'
 import { Link } from "@chakra-ui/react"
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { ChainId, useEthers, useSendTransaction } from '@usedapp/core'
@@ -17,7 +28,7 @@ const localProvider = new providers.StaticJsonRpcProvider(
     'http://localhost:8545'
 )
 
-const RINKEBY_CONTRACT_ADDRESS = '0x8768877CEE737eafe3d1397ce2376f694D13642d'
+const RINKEBY_CONTRACT_ADDRESS = '0x512F47E988abfF6AAA49901cE5e5815AC7d2ab1f'
 
 /**
  * Prop Types
@@ -28,6 +39,7 @@ type StateType = {
     maxSupply: string
     txHashValue: string
     isLoading: boolean
+    numOfPasses: number
 }
 
 type ActionType =
@@ -55,6 +67,11 @@ type ActionType =
         type: 'SET_LOADING'
         isLoading: StateType['isLoading']
     }
+    |
+    {
+        type: 'SET_PASSES'
+        numOfPasses: StateType['numOfPasses']
+    }
 
 /**
  * Component
@@ -65,6 +82,7 @@ const initialState: StateType = {
     maxSupply: '',
     txHashValue: '-',
     isLoading: false,
+    numOfPasses: 1,
 }
 
 function reducer(state: StateType, action: ActionType): StateType {
@@ -96,6 +114,11 @@ function reducer(state: StateType, action: ActionType): StateType {
                 ...state,
                 isLoading: action.isLoading,
             }
+        case 'SET_PASSES':
+            return {
+                ...state,
+                numOfPasses: action.numOfPasses,
+            }
         default:
             throw new Error()
     }
@@ -103,7 +126,7 @@ function reducer(state: StateType, action: ActionType): StateType {
 
 function HomeIndex(): JSX.Element {
     const [state, dispatch] = useReducer(reducer, initialState)
-    const { account, chainId, library } = useEthers()
+    const {account, chainId, library} = useEthers()
 
     const isLocalChain =
         chainId === ChainId.Localhost || chainId === ChainId.Hardhat
@@ -114,7 +137,7 @@ function HomeIndex(): JSX.Element {
             : LOCAL_CONTRACT_ADDRESS
 
     // Use the localProvider as the signer to send ETH to our wallet
-    const { sendTransaction } = useSendTransaction({
+    const {sendTransaction} = useSendTransaction({
         signer: localProvider.getSigner(),
     })
 
@@ -128,7 +151,7 @@ function HomeIndex(): JSX.Element {
             ) as NftyPassContractType
             try {
                 const data = await contract.PRICE()
-                dispatch({ type: 'SET_TOKEN_PRICE', tokenPrice: data.toString() })
+                dispatch({type: 'SET_TOKEN_PRICE', tokenPrice: data.toString()})
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.log('Error: ', err)
@@ -146,10 +169,10 @@ function HomeIndex(): JSX.Element {
             ) as NftyPassContractType
             try {
                 const data1 = await contract.totalSupply()
-                dispatch({ type: 'SET_TOKEN_SUPPLY', tokenSupply: data1.toString() })
+                dispatch({type: 'SET_TOKEN_SUPPLY', tokenSupply: data1.toString()})
 
                 const data2 = await contract.MAX_TOKENS()
-                dispatch({ type: 'SET_MAX_SUPPLY', maxSupply: data2.toString() })
+                dispatch({type: 'SET_MAX_SUPPLY', maxSupply: data2.toString()})
 
             } catch (err) {
                 // eslint-disable-next-line no-console
@@ -171,12 +194,18 @@ function HomeIndex(): JSX.Element {
 
                 const value = await contract.PRICE();
 
-                const data = await contract
-                    .connect(library.getSigner())
-                    .safeMint(account, { value })
+                let data;
+                if (state.numOfPasses == 1) {
+                    data = await contract
+                        .connect(library.getSigner())
+                        .safeMint(account, {value})
+                } else {
+                    data = await contract
+                        .connect(library.getSigner())
+                        .batchSafeMint(state.numOfPasses, account, {value: value.mul(state.numOfPasses)})
+                }
 
-
-                dispatch({ type: 'SET_TX_HASH_VALUE', txHashValue: data.hash })
+                dispatch({type: 'SET_TX_HASH_VALUE', txHashValue: data.hash})
                 await data.wait()
                 await fetchTokenSupply()
 
@@ -217,26 +246,40 @@ function HomeIndex(): JSX.Element {
             </Text>
             <Box maxWidth="container.xm" p="8" mt="8" bg="gray.100">
                 <Link href={`https://rinkeby.etherscan.io/address/${CONTRACT_ADDRESS}`} isExternal>
-                    Contract Address: <br />{CONTRACT_ADDRESS} <ExternalLinkIcon mx="2px" />
+                    Contract Address: <br/>{CONTRACT_ADDRESS} <ExternalLinkIcon mx="2px"/>
                 </Link>
 
-                <Divider my="8" borderColor="gray.400" />
+                <Divider my="8" borderColor="gray.400"/>
                 <Box>
                     <Text fontSize="lg">Token Price: {state.tokenPrice}</Text>
                     <Button mt="2" colorScheme="teal" onClick={fetchTokenPrice}>
                         Fetch Token Minting Price
                     </Button>
                 </Box>
-                <Divider my="8" borderColor="gray.400" />
+                <Divider my="8" borderColor="gray.400"/>
                 <Box>
-                    <Text fontSize="lg">Minted supply: {state.tokenSupply}  |  Maximum Supply: {state.maxSupply} </Text>
+                    <Text fontSize="lg">Minted supply: {state.tokenSupply} | Maximum Supply: {state.maxSupply} </Text>
                     <Button mt="2" colorScheme="teal" onClick={fetchTokenSupply}>
                         Fetch Data
                     </Button>
                 </Box>
 
-                <Divider my="8" borderColor="gray.400" />
+                <Divider my="8" borderColor="gray.400"/>
                 <Box>
+                    <Text mt="6">Number of NftyPasses:</Text>
+                    <NumberInput size="lg" maxW={32} background={"white"} max={20} min={1} value={state.numOfPasses}
+                    onChange={(e) => {
+                        dispatch({
+                            type: 'SET_PASSES',
+                            numOfPasses: +e,
+                        })
+                    }}>
+                        <NumberInputField/>
+                        <NumberInputStepper>
+                            <NumberIncrementStepper/>
+                            <NumberDecrementStepper/>
+                        </NumberInputStepper>
+                    </NumberInput>
                     <Button
                         mt="2"
                         mb="3"
@@ -250,12 +293,12 @@ function HomeIndex(): JSX.Element {
                 </Box>
                 <Box>
                     <Link mt="2" href={`https://rinkeby.etherscan.io/tx/${state.txHashValue}`} isExternal>
-                        Transaction: {state.txHashValue} <ExternalLinkIcon mx="4px" />
+                        Transaction: {state.txHashValue} <ExternalLinkIcon mx="4px"/>
                     </Link>
 
                 </Box>
 
-                <Divider my="8" borderColor="gray.400" />
+                <Divider my="8" borderColor="gray.400"/>
 
                 <Text mb="4">This button only works on a Local Chain.</Text>
                 <Button
@@ -266,7 +309,7 @@ function HomeIndex(): JSX.Element {
                     Send Funds From Local Hardhat Chain
                 </Button>
             </Box>
-        </Layout >
+        </Layout>
     )
 }
 
