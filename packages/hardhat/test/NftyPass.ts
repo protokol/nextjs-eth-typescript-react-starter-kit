@@ -8,7 +8,7 @@ import { NftyPass, NftyPass__factory } from "frontend/types/typechain";
 
 chai.use(chaiEthers);
 chai.use(chaiAsPromised);
-const { expect } = chai;
+const { expect, assert } = chai;
 
 describe("NftyPass", function () {
   let accounts: Signer[];
@@ -97,6 +97,42 @@ describe("NftyPass", function () {
     });
   });
 
+  describe("batchSafeMint", function () {
+    it("Should Successfully batchSafeMint", async function () {
+      const value = await nftyPassContract.PRICE();
+
+      expect(await nftyPassContract.totalSupply()).to.equal(0);
+
+      await nftyPassContract.batchSafeMint(
+          5,
+          await accounts[0].getAddress(),
+          { value: value.mul(20) }
+      );
+
+      expect(await nftyPassContract.totalSupply()).to.equal(5);
+    });
+
+    it("Should throw ETH amount is not sufficient", async function () {
+      const value = await nftyPassContract.PRICE();
+
+      expect(nftyPassContract.batchSafeMint(
+          5,
+          await accounts[0].getAddress(),
+          { value: value.mul(5).sub(1) }
+      )).eventually.to.be.rejectedWith("ETH amount is not sufficient");
+    });
+
+    it("Should throw Can only mint up to 5 tokens", async function () {
+      const value = await nftyPassContract.PRICE();
+
+      expect(nftyPassContract.batchSafeMint(
+          6,
+          await accounts[0].getAddress(),
+          { value: value.mul(6) }
+      )).eventually.to.be.rejectedWith("Can only mint up to 5 tokens");
+    });
+  });
+
   describe("Base URI", function () {
     it("Should update base uri", async function () {
       const updatedBaseURI = "www.placeholder2.com/";
@@ -176,6 +212,42 @@ describe("NftyPass", function () {
       expect(
         nftyPassContract.connect(accounts[1]).withdraw()
       ).eventually.to.be.rejectedWith();
+    });
+  });
+
+  describe("tokensOfOwner", function () {
+    it("Should Return Correct Token Ids", async function () {
+      const value = await nftyPassContract.PRICE();
+
+      await nftyPassContract.safeMint(
+          await accounts[0].getAddress(),
+          { value }
+      );
+
+      await nftyPassContract.safeMint(
+          await accounts[0].getAddress(),
+          { value }
+      );
+
+      await nftyPassContract.safeMint(
+          await accounts[1].getAddress(),
+          { value }
+      );
+
+      await nftyPassContract.safeMint(
+          await accounts[2].getAddress(),
+          { value }
+      );
+
+      const address1 = await nftyPassContract.tokensOfOwner(await accounts[0].getAddress());
+      assert.equal(address1[0].toNumber(), 0);
+      assert.equal(address1[1].toNumber(), 1);
+
+      const address2 = await nftyPassContract.tokensOfOwner(await accounts[1].getAddress());
+      assert.equal(address2[0].toNumber(), 2);
+
+      const address3 = await nftyPassContract.tokensOfOwner(await accounts[2].getAddress());
+      assert.equal(address3[0].toNumber(), 3);
     });
   });
 });
