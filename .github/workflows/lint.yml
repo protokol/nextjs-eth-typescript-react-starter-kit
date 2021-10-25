@@ -1,0 +1,60 @@
+name: LINT
+
+on:
+  push:
+    branches:
+      - "master"
+      - "develop"
+  pull_request:
+    types: [ready_for_review, synchronize, opened]
+
+jobs:
+  lint-frontend:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install
+        run: yarn install
+
+      - name: Compile
+        run: yarn compile
+
+      - name: Lint && Type Check && Format
+        run: cd packages/frontend && yarn lint && yarn type-check && yarn format
+
+  tests-contracts:
+    name: Lint Contracts
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install
+        run: yarn install
+
+      - name: Compile
+        run: yarn compile
+
+      - name: Lint && Format
+        run: cd packages/hardhat && yarn lint && yarn format

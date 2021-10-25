@@ -2,15 +2,13 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 
-
-import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-solhint";
-
-import { HardhatUserConfig } from "hardhat/types";
+import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
 import "dotenv/config";
+import { HardhatUserConfig } from "hardhat/types";
 
 import "./tasks/accounts";
 import "./tasks/balance";
@@ -33,7 +31,9 @@ const MNEMONIC = process.env.MNEMONIC || "your mnemonic";
 const ETHERSCAN_API_KEY =
   process.env.ETHERSCAN_API_KEY || "Your etherscan API key";
 // optional
-const PRIVATE_KEY = process.env.PRIVATE_KEY || "your private key";
+const PRIVATE_KEY =
+  process.env.PRIVATE_KEY ||
+  "1dff2e1c343e5ca5787c71b0f557d9b2bafc420dccbc0724e723f48cdc0cdd74";
 const PINATA_API_KEY = process.env.PINATA_API_KEY;
 const PINATA_API_SECRET = process.env.PINATA_API_SECRET;
 
@@ -71,9 +71,9 @@ const config: HardhatUserConfig = {
     rinkeby: {
       url: RINKEBY_RPC_URL,
       accounts: [PRIVATE_KEY],
-      //accounts: {
-      //  mnemonic: MNEMONIC,
-      //},
+      // accounts: {
+      //   mnemonic: MNEMONIC,
+      // },
     },
     ganache: {
       url: "http://localhost:8545",

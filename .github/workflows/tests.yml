@@ -1,0 +1,60 @@
+name: TESTS
+
+on:
+  push:
+    branches:
+      - "master"
+      - "develop"
+  pull_request:
+    types: [ready_for_review, synchronize, opened]
+
+jobs:
+  tests-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install
+        run: yarn install
+
+      - name: Compile
+        run: yarn compile
+
+      - name: Test
+        run: cd packages/frontend && yarn test
+
+  tests-contracts:
+    name: Tests Contracts
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install
+        run: yarn install
+
+      - name: Compile
+        run: yarn compile
+
+      - name: Test
+        run: cd packages/hardhat && yarn test

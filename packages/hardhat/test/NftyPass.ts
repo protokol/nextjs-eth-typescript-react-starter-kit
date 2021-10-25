@@ -1,10 +1,9 @@
-import { ethers, web3 } from "hardhat";
-import { Signer } from "ethers";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { chaiEthers } from "chai-ethers";
-
+import { Signer } from "ethers";
 import { NftyPass, NftyPass__factory } from "frontend/types/typechain";
+import { ethers, web3 } from "hardhat";
 
 chai.use(chaiEthers);
 chai.use(chaiAsPromised);
@@ -103,11 +102,9 @@ describe("NftyPass", function () {
 
       expect(await nftyPassContract.totalSupply()).to.equal(0);
 
-      await nftyPassContract.batchSafeMint(
-          5,
-          await accounts[0].getAddress(),
-          { value: value.mul(20) }
-      );
+      await nftyPassContract.batchSafeMint(5, await accounts[0].getAddress(), {
+        value: value.mul(20),
+      });
 
       expect(await nftyPassContract.totalSupply()).to.equal(5);
     });
@@ -115,21 +112,21 @@ describe("NftyPass", function () {
     it("Should throw ETH amount is not sufficient", async function () {
       const value = await nftyPassContract.PRICE();
 
-      expect(nftyPassContract.batchSafeMint(
-          5,
-          await accounts[0].getAddress(),
-          { value: value.mul(5).sub(1) }
-      )).eventually.to.be.rejectedWith("ETH amount is not sufficient");
+      expect(
+        nftyPassContract.batchSafeMint(5, await accounts[0].getAddress(), {
+          value: value.mul(5).sub(1),
+        })
+      ).eventually.to.be.rejectedWith("ETH amount is not sufficient");
     });
 
     it("Should throw Can only mint up to 5 tokens", async function () {
       const value = await nftyPassContract.PRICE();
 
-      expect(nftyPassContract.batchSafeMint(
-          6,
-          await accounts[0].getAddress(),
-          { value: value.mul(6) }
-      )).eventually.to.be.rejectedWith("Can only mint up to 5 tokens");
+      expect(
+        nftyPassContract.batchSafeMint(6, await accounts[0].getAddress(), {
+          value: value.mul(6),
+        })
+      ).eventually.to.be.rejectedWith("Can only mint up to 5 tokens");
     });
   });
 
@@ -219,34 +216,36 @@ describe("NftyPass", function () {
     it("Should Return Correct Token Ids", async function () {
       const value = await nftyPassContract.PRICE();
 
-      await nftyPassContract.safeMint(
-          await accounts[0].getAddress(),
-          { value }
-      );
+      await nftyPassContract.safeMint(await accounts[0].getAddress(), {
+        value,
+      });
 
-      await nftyPassContract.safeMint(
-          await accounts[0].getAddress(),
-          { value }
-      );
+      await nftyPassContract.safeMint(await accounts[0].getAddress(), {
+        value,
+      });
 
-      await nftyPassContract.safeMint(
-          await accounts[1].getAddress(),
-          { value }
-      );
+      await nftyPassContract.safeMint(await accounts[1].getAddress(), {
+        value,
+      });
 
-      await nftyPassContract.safeMint(
-          await accounts[2].getAddress(),
-          { value }
-      );
+      await nftyPassContract.safeMint(await accounts[2].getAddress(), {
+        value,
+      });
 
-      const address1 = await nftyPassContract.tokensOfOwner(await accounts[0].getAddress());
+      const address1 = await nftyPassContract.tokensOfOwner(
+        await accounts[0].getAddress()
+      );
       assert.equal(address1[0].toNumber(), 0);
       assert.equal(address1[1].toNumber(), 1);
 
-      const address2 = await nftyPassContract.tokensOfOwner(await accounts[1].getAddress());
+      const address2 = await nftyPassContract.tokensOfOwner(
+        await accounts[1].getAddress()
+      );
       assert.equal(address2[0].toNumber(), 2);
 
-      const address3 = await nftyPassContract.tokensOfOwner(await accounts[2].getAddress());
+      const address3 = await nftyPassContract.tokensOfOwner(
+        await accounts[2].getAddress()
+      );
       assert.equal(address3[0].toNumber(), 3);
     });
   });
