@@ -10,7 +10,7 @@
     ]
   },
   "rules": {
-    "prettier": true,
+    "prettier": [true, ".prettierrc.json"],
     "object-literal-sort-keys": false,
     "no-submodule-imports": false,
     "interface-name": false,
