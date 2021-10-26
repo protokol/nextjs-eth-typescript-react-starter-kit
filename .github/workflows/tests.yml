@@ -32,7 +32,7 @@ jobs:
         run: yarn compile
 
       - name: Test
-        run: cd packages/frontend && yarn test
+        run: cd packages/frontend && yarn test -u
 
   tests-contracts:
     name: Tests Contracts
