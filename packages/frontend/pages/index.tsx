@@ -391,8 +391,11 @@ function HomeIndex(): JSX.Element {
 				</Button>
 
 				<Box>
-					<Text mt="6" mb="2">
-						Mint my NftyPasses:{" "}
+					<Text mt="6">
+						The buttons below represent the nfty passes you own.
+						<br />
+						By clicking on the button you are able to mint a Halloween NFT from the NFTY Village of
+						Alpacria:
 					</Text>
 					{state.allPasses.map((pass) => (
 						<Button
@@ -404,9 +407,10 @@ function HomeIndex(): JSX.Element {
 							}}
 							colorScheme="teal"
 							size="sm"
+							mt="2"
 							mr="2"
 						>
-							Mint pass: {pass.id}
+							Mint Halloween NFT: {pass.id}
 						</Button>
 					))}
 				</Box>
