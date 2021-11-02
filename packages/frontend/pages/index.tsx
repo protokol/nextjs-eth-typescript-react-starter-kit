@@ -80,6 +80,10 @@ type ActionType =
 			allPasses: StateType["allPasses"];
 	  }
 	| {
+			type: "UPDATE_PASS";
+			updateId: number;
+	  }
+	| {
 			type: "SET_HALLOWEEN_TX_HASH_VALUE";
 			halloweenTxHashValue: StateType["halloweenTxHashValue"];
 	  };
@@ -137,6 +141,14 @@ function reducer(state: StateType, action: ActionType): StateType {
 				...state,
 				allPasses: action.allPasses,
 			};
+		case "UPDATE_PASS": {
+			const allPasses = state.allPasses;
+			allPasses.find((p) => p.id === action.updateId).isUsed = true;
+			return {
+				...state,
+				allPasses,
+			};
+		}
 		case "SET_HALLOWEEN_TX_HASH_VALUE":
 			return {
 				...state,
@@ -401,9 +413,9 @@ function HomeIndex(): JSX.Element {
 						<Button
 							key={pass.toString()}
 							isDisabled={pass.isUsed}
-							onClick={() => {
-								mintHalloweenNFT(pass.id);
-								state.allPasses.find((p) => p.id === pass.id).isUsed = true;
+							onClick={async () => {
+								await mintHalloweenNFT(pass.id);
+								dispatch({ type: "UPDATE_PASS", updateId: pass.id });
 							}}
 							colorScheme="teal"
 							size="sm"
