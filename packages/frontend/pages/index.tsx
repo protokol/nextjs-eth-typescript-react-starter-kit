@@ -27,9 +27,9 @@ import { NftyHalloween as NftyHalloweenContractType, NftyPass as NftyPassContrac
 
 const localProvider = new providers.StaticJsonRpcProvider("http://localhost:8545");
 
-const RINKEBY_PASS_CONTRACT_ADDRESS = "0x8Ba5cE975a075Be7c170F6BA3f937Ed6E1dA0Ed2";
+const RINKEBY_PASS_CONTRACT_ADDRESS = "0x725b13C2b182F5aA5439D6E568b90203FEb8B91C";
 
-const RINKEBY_HALLOWEEN_CONTRACT_ADDRESS = "0x4cF7B63a495a10540870d42c2d6FaC1809049C44";
+const RINKEBY_HALLOWEEN_CONTRACT_ADDRESS = "0xF6DcCD7a8A3F4Df88DD4017a126Bf33509749fA9";
 
 /**
  * Prop Types
@@ -48,6 +48,7 @@ type StateType = {
 	numOfPasses: number;
 	allPasses: PassInfo[];
 	halloweenTxHashValue: string;
+	allHalloweenNFTs: number[];
 };
 
 type ActionType =
@@ -86,7 +87,11 @@ type ActionType =
 	| {
 			type: "SET_HALLOWEEN_TX_HASH_VALUE";
 			halloweenTxHashValue: StateType["halloweenTxHashValue"];
-	  };
+	  }
+	| {
+			type: "SET_ALL_HALLOWEEN_NFTS";
+			allHalloweenNFTs: StateType["allHalloweenNFTs"];
+	};
 
 /**
  * Component
@@ -100,6 +105,7 @@ const initialState: StateType = {
 	numOfPasses: 1,
 	allPasses: [],
 	halloweenTxHashValue: "-",
+	allHalloweenNFTs: [],
 };
 
 function reducer(state: StateType, action: ActionType): StateType {
@@ -153,6 +159,11 @@ function reducer(state: StateType, action: ActionType): StateType {
 			return {
 				...state,
 				halloweenTxHashValue: action.halloweenTxHashValue,
+			};
+		case "SET_ALL_HALLOWEEN_NFTS":
+			return {
+				...state,
+				allHalloweenNFTs: action.allHalloweenNFTs,
 			};
 		default:
 			throw new Error();
@@ -298,6 +309,25 @@ function HomeIndex(): JSX.Element {
 		}
 	}
 
+	async function listAllHalloweenTokens() {
+		if (library) {
+			const halloweenContract = new ethers.Contract(
+				HALLOWEEN_CONTRACT_ADDRESS,
+				NftyHalloweenContract.abi,
+				library,
+			) as NftyHalloweenContractType;
+			try {
+				const data = await halloweenContract.tokensOfOwner(account);
+				const allNFTs = data.map((pass) => pass.toNumber());
+
+				dispatch({ type: "SET_ALL_HALLOWEEN_NFTS", allHalloweenNFTs: allNFTs });
+			} catch (err) {
+				// eslint-disable-next-line no-console
+				console.log("Error: ", err);
+			}
+		}
+	}
+
 	function sendFunds(): void {
 		sendTransaction({
 			to: account,
@@ -431,6 +461,28 @@ function HomeIndex(): JSX.Element {
 						Transaction: {state.halloweenTxHashValue} <ExternalLinkIcon mx="4px" />
 					</Link>
 				</Box>
+
+				<Divider my="8" borderColor="gray.400" />
+
+				<Button colorScheme="teal" onClick={listAllHalloweenTokens}>
+					List my Halloween NFT set
+				</Button>
+
+				<Text mt="4">
+					List of my NFTY Halloween NFTs:
+				</Text>
+
+				{state.allHalloweenNFTs.map((nft) => (
+					<Link
+						key={nft.toString()}
+						href={`https://rinkeby.etherscan.io/token/${HALLOWEEN_CONTRACT_ADDRESS}?a=${nft}`}
+						isExternal
+						mt="2"
+						mr="2"
+					>
+						{nft}
+					</Link>
+				))}
 
 				<Divider my="8" borderColor="gray.400" />
 
