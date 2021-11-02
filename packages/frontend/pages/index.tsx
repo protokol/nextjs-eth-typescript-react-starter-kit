@@ -91,7 +91,7 @@ type ActionType =
 	| {
 			type: "SET_ALL_HALLOWEEN_NFTS";
 			allHalloweenNFTs: StateType["allHalloweenNFTs"];
-	};
+	  };
 
 /**
  * Component
@@ -468,9 +468,7 @@ function HomeIndex(): JSX.Element {
 					List my Halloween NFT set
 				</Button>
 
-				<Text mt="4">
-					List of my NFTY Halloween NFTs:
-				</Text>
+				<Text mt="4">List of my NFTY Halloween NFTs:</Text>
 
 				{state.allHalloweenNFTs.map((nft) => (
 					<Link
