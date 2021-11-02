@@ -17,8 +17,9 @@ import { ethers, providers, utils } from "ethers";
 import React, { useReducer } from "react";
 import { NftyPass as LOCAL_CONTRACT_ADDRESS } from "hardhat/scripts/contractAddress";
 import NftyPassContract from "../artifacts/contracts/NftyPass.sol/NftyPass.json";
+import NftyHalloweenContract from "../artifacts/contracts/NftyHalloween.sol/NftyHalloween.json";
 import { Layout } from "../components/layout/Layout";
-import { NftyPass as NftyPassContractType } from "../types/typechain";
+import { NftyHalloween as NftyHalloweenContractType, NftyPass as NftyPassContractType } from "../types/typechain";
 
 /**
  * Constants & Helpers
@@ -26,11 +27,18 @@ import { NftyPass as NftyPassContractType } from "../types/typechain";
 
 const localProvider = new providers.StaticJsonRpcProvider("http://localhost:8545");
 
-const RINKEBY_CONTRACT_ADDRESS = "0x8Ba5cE975a075Be7c170F6BA3f937Ed6E1dA0Ed2";
+const RINKEBY_PASS_CONTRACT_ADDRESS = "0x8Ba5cE975a075Be7c170F6BA3f937Ed6E1dA0Ed2";
+
+const RINKEBY_HALLOWEEN_CONTRACT_ADDRESS = "0x4cF7B63a495a10540870d42c2d6FaC1809049C44";
 
 /**
  * Prop Types
  */
+interface PassInfo {
+	id: number;
+	isUsed: boolean;
+}
+
 type StateType = {
 	tokenPrice: string;
 	tokenSupply: string;
@@ -38,7 +46,8 @@ type StateType = {
 	txHashValue: string;
 	isLoading: boolean;
 	numOfPasses: number;
-	allPasses: number[];
+	allPasses: PassInfo[];
+	halloweenTxHashValue: string;
 };
 
 type ActionType =
@@ -69,6 +78,14 @@ type ActionType =
 	| {
 			type: "SET_ALL_PASSES";
 			allPasses: StateType["allPasses"];
+	  }
+	| {
+			type: "UPDATE_PASS";
+			updateId: number;
+	  }
+	| {
+			type: "SET_HALLOWEEN_TX_HASH_VALUE";
+			halloweenTxHashValue: StateType["halloweenTxHashValue"];
 	  };
 
 /**
@@ -82,6 +99,7 @@ const initialState: StateType = {
 	isLoading: false,
 	numOfPasses: 1,
 	allPasses: [],
+	halloweenTxHashValue: "-",
 };
 
 function reducer(state: StateType, action: ActionType): StateType {
@@ -123,6 +141,19 @@ function reducer(state: StateType, action: ActionType): StateType {
 				...state,
 				allPasses: action.allPasses,
 			};
+		case "UPDATE_PASS": {
+			const allPasses = state.allPasses;
+			allPasses.find((p) => p.id === action.updateId).isUsed = true;
+			return {
+				...state,
+				allPasses,
+			};
+		}
+		case "SET_HALLOWEEN_TX_HASH_VALUE":
+			return {
+				...state,
+				halloweenTxHashValue: action.halloweenTxHashValue,
+			};
 		default:
 			throw new Error();
 	}
@@ -134,7 +165,10 @@ function HomeIndex(): JSX.Element {
 
 	const isLocalChain = chainId === ChainId.Localhost || chainId === ChainId.Hardhat;
 
-	const CONTRACT_ADDRESS = chainId === ChainId.Rinkeby ? RINKEBY_CONTRACT_ADDRESS : LOCAL_CONTRACT_ADDRESS;
+	const PASS_CONTRACT_ADDRESS = chainId === ChainId.Rinkeby ? RINKEBY_PASS_CONTRACT_ADDRESS : LOCAL_CONTRACT_ADDRESS;
+
+	const HALLOWEEN_CONTRACT_ADDRESS =
+		chainId === ChainId.Rinkeby ? RINKEBY_HALLOWEEN_CONTRACT_ADDRESS : LOCAL_CONTRACT_ADDRESS;
 
 	// Use the localProvider as the signer to send ETH to our wallet
 	const { sendTransaction } = useSendTransaction({
@@ -145,7 +179,7 @@ function HomeIndex(): JSX.Element {
 	async function fetchTokenPrice() {
 		if (library) {
 			const contract = new ethers.Contract(
-				CONTRACT_ADDRESS,
+				PASS_CONTRACT_ADDRESS,
 				NftyPassContract.abi,
 				library,
 			) as NftyPassContractType;
@@ -163,7 +197,7 @@ function HomeIndex(): JSX.Element {
 	async function fetchTokenSupply() {
 		if (library) {
 			const contract = new ethers.Contract(
-				CONTRACT_ADDRESS,
+				PASS_CONTRACT_ADDRESS,
 				NftyPassContract.abi,
 				library,
 			) as NftyPassContractType;
@@ -184,7 +218,7 @@ function HomeIndex(): JSX.Element {
 	async function mintTokens() {
 		if (library) {
 			const contract = new ethers.Contract(
-				CONTRACT_ADDRESS,
+				PASS_CONTRACT_ADDRESS,
 				NftyPassContract.abi,
 				library,
 			) as NftyPassContractType;
@@ -213,16 +247,50 @@ function HomeIndex(): JSX.Element {
 
 	async function listAllTokens() {
 		if (library) {
-			const contract = new ethers.Contract(
-				CONTRACT_ADDRESS,
+			const passContract = new ethers.Contract(
+				PASS_CONTRACT_ADDRESS,
 				NftyPassContract.abi,
 				library,
 			) as NftyPassContractType;
-			try {
-				const data = await contract.tokensOfOwner(account);
-				const allPasses = data.map((pass) => pass.toNumber());
 
-				dispatch({ type: "SET_ALL_PASSES", allPasses });
+			const halloweenContract = new ethers.Contract(
+				HALLOWEEN_CONTRACT_ADDRESS,
+				NftyHalloweenContract.abi,
+				library,
+			) as NftyHalloweenContractType;
+			try {
+				const data = await passContract.tokensOfOwner(account);
+				const allPasses = data.map((pass) => pass.toNumber());
+				const passInfo: PassInfo[] = [];
+				for (const pass of allPasses) {
+					try {
+						await halloweenContract.claimedPass(pass);
+						passInfo.push({ id: pass, isUsed: true });
+					} catch (e) {
+						console.warn(e);
+						passInfo.push({ id: pass, isUsed: false });
+					}
+				}
+
+				dispatch({ type: "SET_ALL_PASSES", allPasses: passInfo });
+			} catch (err) {
+				// eslint-disable-next-line no-console
+				console.log("Error: ", err);
+			}
+		}
+	}
+
+	async function mintHalloweenNFT(nftyPass: number) {
+		if (library) {
+			const contract = new ethers.Contract(
+				HALLOWEEN_CONTRACT_ADDRESS,
+				NftyHalloweenContract.abi,
+				library,
+			) as NftyHalloweenContractType;
+			try {
+				const data = await contract.connect(library.getSigner()).mint(nftyPass);
+
+				dispatch({ type: "SET_HALLOWEEN_TX_HASH_VALUE", halloweenTxHashValue: data.hash });
 			} catch (err) {
 				// eslint-disable-next-line no-console
 				console.log("Error: ", err);
@@ -257,14 +325,22 @@ function HomeIndex(): JSX.Element {
 				Connect your wallet first! This page only works on the RINKEBY Testnet or on a Local Chain.
 			</Text>
 			<Box maxWidth="container.xm" p="8" mt="8" bg="gray.100">
-				<Link href={`https://rinkeby.etherscan.io/address/${CONTRACT_ADDRESS}`} isExternal>
-					Contract Address: <br />
-					{CONTRACT_ADDRESS} <ExternalLinkIcon mx="2px" />
+				<Link href={`https://rinkeby.etherscan.io/address/${PASS_CONTRACT_ADDRESS}`} isExternal>
+					NFTY Pass Contract Address: <br />
+					{PASS_CONTRACT_ADDRESS} <ExternalLinkIcon mx="2px" />
 				</Link>
 
 				<Divider my="8" borderColor="gray.400" />
+
+				<Link href={`https://rinkeby.etherscan.io/address/${HALLOWEEN_CONTRACT_ADDRESS}`} isExternal>
+					NFTY Halloween Contract Address: <br />
+					{HALLOWEEN_CONTRACT_ADDRESS} <ExternalLinkIcon mx="2px" />
+				</Link>
+
+				<Divider my="8" borderColor="gray.400" />
+
 				<Box>
-					<Text fontSize="lg">Token Price: {state.tokenPrice}</Text>
+					<Text fontSize="lg">NFTY Pass Token Price: {state.tokenPrice}</Text>
 					<Button mt="2" colorScheme="teal" onClick={fetchTokenPrice}>
 						Fetch Token Minting Price
 					</Button>
@@ -272,7 +348,7 @@ function HomeIndex(): JSX.Element {
 				<Divider my="8" borderColor="gray.400" />
 				<Box>
 					<Text fontSize="lg">
-						Minted supply: {state.tokenSupply} | Maximum Supply: {state.maxSupply}{" "}
+						NFTY Pass Minted supply: {state.tokenSupply} | Maximum Supply: {state.maxSupply}{" "}
 					</Text>
 					<Button mt="2" colorScheme="teal" onClick={fetchTokenSupply}>
 						Fetch Data
@@ -327,19 +403,33 @@ function HomeIndex(): JSX.Element {
 				</Button>
 
 				<Box>
-					<Text mt="6" mb="2">
-						NftyPasses:{" "}
+					<Text mt="6">
+						The buttons below represent the nfty passes you own.
+						<br />
+						By clicking on the button you are able to mint a Halloween NFT from the NFTY Village of
+						Alpacria:
 					</Text>
 					{state.allPasses.map((pass) => (
-						<Link
+						<Button
 							key={pass.toString()}
+							isDisabled={pass.isUsed}
+							onClick={async () => {
+								await mintHalloweenNFT(pass.id);
+								dispatch({ type: "UPDATE_PASS", updateId: pass.id });
+							}}
+							colorScheme="teal"
+							size="sm"
+							mt="2"
 							mr="2"
-							href={`https://rinkeby.etherscan.io/token/${CONTRACT_ADDRESS}?a=${pass}`}
-							isExternal
 						>
-							{pass}
-						</Link>
+							Mint Halloween NFT: {pass.id}
+						</Button>
 					))}
+				</Box>
+				<Box mt="4">
+					<Link href={`https://rinkeby.etherscan.io/tx/${state.halloweenTxHashValue}`} isExternal>
+						Transaction: {state.halloweenTxHashValue} <ExternalLinkIcon mx="4px" />
+					</Link>
 				</Box>
 
 				<Divider my="8" borderColor="gray.400" />
