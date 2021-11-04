@@ -10,6 +10,7 @@ import "@typechain/hardhat";
 import "dotenv/config";
 import "hardhat-gas-reporter";
 import { HardhatUserConfig } from "hardhat/types";
+import "solidity-coverage";
 
 import "./tasks/accounts";
 import "./tasks/balance";
