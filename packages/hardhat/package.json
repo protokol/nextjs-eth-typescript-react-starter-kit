@@ -17,7 +17,7 @@
 		"full-check": "yarn lint && yarn format"
 	},
 	"lint-staged": {
-		"*.ts": [
+		"*.@(js|ts)": [
 			"prettier --write"
 		],
 		"*.sol": [
