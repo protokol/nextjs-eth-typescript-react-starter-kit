@@ -1,3 +1,5 @@
 node_modules
 scripts/contractAddress.ts
 package-lock.json
+.coverage
+coverage.json
