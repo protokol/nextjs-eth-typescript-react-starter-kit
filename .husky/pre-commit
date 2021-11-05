@@ -1,0 +1,4 @@
+cd packages
+cd hardhat && yarn lint-staged
+cd ..
+cd frontend && yarn lint-staged
