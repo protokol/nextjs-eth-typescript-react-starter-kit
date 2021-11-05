@@ -16,17 +16,14 @@ import "./tasks/accounts";
 import "./tasks/balance";
 import "./tasks/block-number";
 
-const MAINNET_RPC_URL =
-	process.env.MAINNET_RPC_URL ||
-	process.env.ALCHEMY_MAINNET_RPC_URL ||
-	"https://eth-mainnet.alchemyapi.io/v2/your-api-key";
+const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL || "https://eth-mainnet.alchemyapi.io/v2/your-api-key";
 const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL || "https://eth-rinkeby.alchemyapi.io/v2/your-api-key";
 const KOVAN_RPC_URL = process.env.KOVAN_RPC_URL || "https://eth-kovan.alchemyapi.io/v2/your-api-key";
 const ROPSTEN_RPC_URL = process.env.ROPSTEN_RPC_URL || "https://eth-ropsten.alchemyapi.io/v2/your-api-key";
 const MNEMONIC = process.env.MNEMONIC || "your mnemonic";
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "Your etherscan API key";
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 // optional
-const PRIVATE_KEY = process.env.PRIVATE_KEY || "1dff2e1c343e5ca5787c71b0f557d9b2bafc420dccbc0724e723f48cdc0cdd74";
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const PINATA_API_KEY = process.env.PINATA_API_KEY;
 const PINATA_API_SECRET = process.env.PINATA_API_SECRET;
 const COIN_MARKET_CAP = process.env.COIN_MARKET_CAP;
@@ -47,26 +44,17 @@ const config: HardhatUserConfig = {
 		},
 		ropsten: {
 			url: ROPSTEN_RPC_URL,
-			// accounts: [PRIVATE_KEY],
-			accounts: {
-				mnemonic: MNEMONIC,
-			},
+			accounts: PRIVATE_KEY ? [PRIVATE_KEY] : { mnemonic: MNEMONIC },
 			gas: 2100000,
 			gasPrice: 8000000000,
 		},
 		kovan: {
 			url: KOVAN_RPC_URL,
-			// accounts: [PRIVATE_KEY],
-			accounts: {
-				mnemonic: MNEMONIC,
-			},
+			accounts: PRIVATE_KEY ? [PRIVATE_KEY] : { mnemonic: MNEMONIC },
 		},
 		rinkeby: {
 			url: RINKEBY_RPC_URL,
-			accounts: [PRIVATE_KEY],
-			// accounts: {
-			//   mnemonic: MNEMONIC,
-			// },
+			accounts: PRIVATE_KEY ? [PRIVATE_KEY] : { mnemonic: MNEMONIC },
 		},
 		ganache: {
 			url: "http://localhost:8545",
