@@ -76,6 +76,18 @@ describe("NftyPass", function () {
 				}),
 			).eventually.to.be.rejectedWith();
 		});
+
+		it("Should Be Able to Mint After unpause", async function () {
+			const value = await nftyPassContract.PRICE();
+			await nftyPassContract.connect(accounts[0]).pause();
+			await nftyPassContract.connect(accounts[0]).unpause();
+
+			await nftyPassContract.connect(accounts[1]).safeMint(await accounts[1].getAddress(), {
+				value,
+			});
+
+			expect(await nftyPassContract.totalSupply()).to.equal(1);
+		});
 	});
 
 	describe("batchSafeMint", function () {
