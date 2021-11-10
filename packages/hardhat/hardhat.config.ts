@@ -68,7 +68,15 @@ const config: HardhatUserConfig = {
 		// Obtain one at https://etherscan.io/
 		apiKey: ETHERSCAN_API_KEY,
 	},
-	solidity: "0.8.9",
+	solidity: {
+		version: "0.8.9",
+		settings: {
+			optimizer: {
+				enabled: true,
+				runs: 200,
+			},
+		},
+	},
 	paths: {
 		artifacts: "../frontend/artifacts",
 	},
