@@ -15,7 +15,10 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { ChainId, useEthers, useSendTransaction } from "@usedapp/core";
 import { ethers, providers, utils } from "ethers";
 import React, { useReducer } from "react";
-import { NftyPass as LOCAL_CONTRACT_ADDRESS } from "hardhat/scripts/contractAddress";
+import {
+	NftyPass as LOCAL_NFTY_PASS_CONTRACT_ADDRESS,
+	NftyHalloweenContract as LOCAL_HALLOWEEN_CONTRACT_ADDRESS,
+} from "hardhat/scripts/contractAddress";
 import NftyPassContract from "../artifacts/contracts/NftyPass.sol/NftyPass.json";
 import NftyHalloweenContract from "../artifacts/contracts/NftyHalloween.sol/NftyHalloween.json";
 import { Layout } from "../components/layout/Layout";
@@ -176,10 +179,11 @@ function HomeIndex(): JSX.Element {
 
 	const isLocalChain = chainId === ChainId.Localhost || chainId === ChainId.Hardhat;
 
-	const PASS_CONTRACT_ADDRESS = chainId === ChainId.Rinkeby ? RINKEBY_PASS_CONTRACT_ADDRESS : LOCAL_CONTRACT_ADDRESS;
+	const PASS_CONTRACT_ADDRESS =
+		chainId === ChainId.Rinkeby ? RINKEBY_PASS_CONTRACT_ADDRESS : LOCAL_NFTY_PASS_CONTRACT_ADDRESS;
 
 	const HALLOWEEN_CONTRACT_ADDRESS =
-		chainId === ChainId.Rinkeby ? RINKEBY_HALLOWEEN_CONTRACT_ADDRESS : LOCAL_CONTRACT_ADDRESS;
+		chainId === ChainId.Rinkeby ? RINKEBY_HALLOWEEN_CONTRACT_ADDRESS : LOCAL_HALLOWEEN_CONTRACT_ADDRESS;
 
 	// Use the localProvider as the signer to send ETH to our wallet
 	const { sendTransaction } = useSendTransaction({
