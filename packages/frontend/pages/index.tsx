@@ -27,9 +27,9 @@ import { NftyHalloween as NftyHalloweenContractType, NftyPass as NftyPassContrac
 
 const localProvider = new providers.StaticJsonRpcProvider("http://localhost:8545");
 
-const RINKEBY_PASS_CONTRACT_ADDRESS = "0x725b13C2b182F5aA5439D6E568b90203FEb8B91C";
+const RINKEBY_PASS_CONTRACT_ADDRESS = "0xD4df0E9F050D285E07E0089B4b889EbDA646E162";
 
-const RINKEBY_HALLOWEEN_CONTRACT_ADDRESS = "0xF6DcCD7a8A3F4Df88DD4017a126Bf33509749fA9";
+const RINKEBY_HALLOWEEN_CONTRACT_ADDRESS = "0x8C8Ecbd1d722C4e3258bAAf10d154c3D31b4cF1E";
 
 /**
  * Prop Types

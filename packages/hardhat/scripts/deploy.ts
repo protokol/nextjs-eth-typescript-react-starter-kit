@@ -44,7 +44,7 @@ async function main() {
 function saveFrontendFiles(contract: Contract, contractName: string) {
 	fs.appendFileSync(
 		`${config.paths.root}/scripts/contractAddress.ts`,
-		`export const ${contractName} = \"${contract.address}\"\n`,
+		`export const ${contractName} = "${contract.address}"\n`,
 	);
 }
 
